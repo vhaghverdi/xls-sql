@@ -1,10 +1,11 @@
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const db = require("./db");
-const Company = require("./models/Company");
+const { Company } = require("./models");
 const { xlsToJSON } = require("./util");
 
 // setup server middleware
@@ -23,6 +24,10 @@ app.listen(process.env.PORT || 4000, async () => {
     const filepath = path.join(__dirname, "..", "sample", "initial.xlsx");
     const sheet = xlsToJSON(filepath);
     await Company.bulkCreate(sheet);
+    const uploadDir = path.join(__dirname, "uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
+    }
     console.log("Created and seeded database.");
     console.log("Server listening for requests...");
   } catch (error) {
